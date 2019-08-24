@@ -1,7 +1,9 @@
 import pandas as pd, numpy as np, matplotlib.pyplot as plt, seaborn as sns
 import os, time
 from scipy import stats
-
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix, roc_curve, auc
 os.chdir("C:\\Users\\Marek\\Desktop\\Python\\Kaggle\\FraudDetection")
 
 start = time.time()
@@ -59,3 +61,61 @@ plt.subplots(figsize=(12,9))
 sns.heatmap(train_tran_nv, square = True, annot = True)
 
 corrmat.pivot_table()
+
+train_tran[normal_variables].columns
+
+pd.Series(train_tran["P_emaildomain"]).unique
+
+pc_summary = train_tran.groupby(by = "ProductCD").count().iloc[:,1]
+ed_summary = train_tran.groupby(by = "P_emaildomain").count().iloc[:,1]
+
+test_columns = ["isFraud", "TransactionAmt"]
+test = train_tran[test_columns]
+test.corr()
+corr(train_tran["TransactionAmt"], y_train)
+
+train_stan = train_tran.dtypes.isin(["float64","int64"])
+train_stan = train_stan[train_stan==1.0]
+
+sc_X = StandardScaler()
+train_stan = train_tran[train_stan.index]
+train_stan = train_stan[notnull_columns]
+sc_X.fit_transform(train_stan)
+
+test_tran = test_tran[notnull_columns]
+sc_X.fit_transform(test_tran)
+
+train_notnull = train_stan.isnull().sum()==0
+notnull_columns = train_notnull[train_notnull == True].index
+notnull_columns = notnull_columns.tolist()
+
+classifier = LogisticRegression()
+classifier.fit(train_stan, y_train)
+
+test_notnull = test_tran.isnull().sum()
+
+y_pred = classifier.predict(train_stan)
+
+for column in test_tran.columns:
+    test_tran[column] = test_tran[column].fillna(1)
+
+cm = confusion_matrix(y_train, y_pred)
+
+sensitivity = cm[0,0]/(cm[0,0] + cm[1,0])
+print("Sensitivity: " + str(sensitivity))
+specificity = cm[1,1]/(cm[1,1] + cm[0,1])
+print("Specificity: " + str(specificity))
+
+fpr,tpr, thresholds = roc_curve(y_train, y_pred)
+fig,ax = plt.subplots()
+ax.plot(fpr,tpr)
+ax.plot([0,1],[0,1], transform = ax.transAxes, ls = "--", c = ".3")
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0,1.0])
+plt.rcParams['font.size']=12
+plt.title("ROC Curve for Fraud Classifier")
+plt.xlabel("False Positive Rate (1-Specificity)")
+plt.ylabel("True Positive Rate (Sensitivity)")
+plt.grid(True)
+
+auc(fpr,tpr)
