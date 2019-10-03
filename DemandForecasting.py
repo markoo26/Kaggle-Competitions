@@ -7,9 +7,11 @@ from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 import itertools, webbrowser, ctypes, datetime
 from pmdarima.arima.stationarity import ADFTest
 from pmdarima.arima.utils import ndiffs
-import time, sys
+import time, sys, os
 
 toolbar_width = 40
+
+os.chdir('C:\\Users\\Marek\\Desktop\\Python\\Kaggle\\Demand Forecasting\\')
 
 
 plt.rcParams.update({'figure.figsize':(9,7), 'figure.dpi':120})
@@ -128,6 +130,8 @@ end_time = datetime.datetime.now()
 print ("Code execution end datetime : ")
 print (end_time.strftime("%Y-%m-%d %H:%M:%S"))
 
+### Execution of 3 month predictions for each item&shop pair
+
 final_forecasts = pd.DataFrame(columns = ['Shop', 'Item','No_Of_Prediction', 
                                           'Predicted_Value'])
 forecasts_columns = ['Shop', 'Item']
@@ -137,21 +141,40 @@ print ("ARIMA models execution start datetime : ")
 print (arima_start_time.strftime("%Y-%m-%d %H:%M:%S"))
 
     
-for i in range(0,len(arima_summary)):
-
+for i in range(0,len(arima_summary)-439):
     
     arima_par_names = ['AR_Order', 'Diff_Order', 'MA_Order']
     arima_par_values = arima_summary[arima_par_names].iloc[[i]]
     arima_pv_tuple = [tuple(x) for x in arima_par_values.to_records(index=False)]
-
+    
+    shops = [arima_summary['Shop'].iloc[i]]
+    items = [arima_summary['Item'].iloc[i]]
+    
+    data = train_data.loc[(train_data['store'].isin(shops)) & train_data['item'].isin(items)]
+    
     model = ARIMA(data['sales'], order=arima_pv_tuple[0])
+    #### TEST ####
+    model = ARIMA(data['sales'], order=(8,0,7))
+    model_fit = model.fit(disp=0)
+    p = 8
+    k = 5
+    q = 8
+    from numpy import zeros, r_
+    if p and not np.all(np.abs(np.roots(np.r_[1, -start_params[k:k + p]]
+                                            )) < 1):
+    zeros(8+0+8)
+    start_params = zeros((p+q+k))
+    #### TEST ####
+    
     model_fit = model.fit(disp=0)
 
     shops = int(arima_summary[forecasts_columns].iloc[i].values[0])
     items = int(arima_summary[forecasts_columns].iloc[i].values[1])
 
     forecasts = model_fit.predict()[0:90]
+    
     print(forecasts)
+    
     shop_item_forecasts = pd.DataFrame()
     shop_item_forecasts['Shop'] = list(np.repeat(shops,90))
     shop_item_forecasts['Item']= list(np.repeat(items,90))
@@ -160,6 +183,8 @@ for i in range(0,len(arima_summary)):
     
     final_forecasts = final_forecasts.append(shop_item_forecasts)
 
+    final_forecasts.to_csv('ARIMA_forecasts.csv')
+    
     arima_current_time = datetime.datetime.now()
     arima_time_difference = (arima_current_time - arima_start_time).total_seconds()
     elapsed_time = len(arima_summary)/(i+1)*arima_time_difference
@@ -168,3 +193,7 @@ for i in range(0,len(arima_summary)):
     print('Finished forecasting for ' + str(i) + ' out of ' + str(len(arima_summary)) + ' models')
     print ("ARIMA models predicted end datetime : ")
     print (arima_predicted_end_time.strftime("%Y-%m-%d %H:%M:%S"))
+    
+
+### Save pandas predictions to txt file
+    
