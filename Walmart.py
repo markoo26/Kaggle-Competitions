@@ -135,3 +135,8 @@ def count_exec_time(cmd_string, title = None):
     return exec_summary
 
 count_exec_time(code, 'KNN')
+
+with open('kodzik.txt', 'r') as file:
+    walmart = file.read()
+    
+    count_exec_time(walmart, 'total code')
