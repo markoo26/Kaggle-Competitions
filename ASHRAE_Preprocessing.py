@@ -1,7 +1,8 @@
 ### TO DO:
 #1. Convert to weekday
+#2. Convert to an importable class
 
-#### Preprocessing time: ####
+#### Preprocessing time: 9 min 39 s ####
 
 #### Import of the libraries ####
 
@@ -11,9 +12,6 @@ import warnings, webbrowser, gc, os, datetime, time
 warnings.simplefilter("ignore")
 
 start_time = time.time()
-
-#### Models ####
-from sklearn.ensemble import RandomForestRegressor
 
 #### Change working directory
 
@@ -200,45 +198,13 @@ gc.collect()
 full_train_data['timestamp'] = pd.to_datetime(full_train_data['timestamp'])
 full_train_data['IsWeekend'] = str(full_train_data['timestamp'].dt.dayofweek)
 
-## Monday = 0 and Sunday = 6
 
-DICT_IsWeekend = { 
-        '0':0,
-        '1':0,
-        '2':0,
-        '3':0,
-        '4':0,
-        '5':1,
-        '6':1,
-        }
 
-full_train_data['IsWeekend'] = full_train_data['IsWeekend'].map(DICT_IsWeekend)
-np.unique(full_train_data['IsWeekend'].values)
 
 end_time = time.time()
 print(end_time - start_time)
 
 #### Store the preprocessed data to a file ####
 
-full_train_data.to_csv("merged_train_data.csv",index_label=False)
-
-#### Fitting the data ####
-train_y = full_train_data['meter_reading']
-del full_train_data['meter_reading']
-del full_train_data['timestamp']
-train_X = full_train_data
-
-
-
-####
-
-#LGBM - fit_lgbm
-#CatBoost Regressor - from catboost import CatBoostRegressor
-#NGBoost - from ngboost.ngboost import NGBoost
-#light GBM - import lightgbm as lgb
-
-my_model = RandomForestRegressor()
-my_model.fit(train_X, train_y)
-
-
+full_train_data.to_csv("full_train_data.csv",index_label=False)
 
