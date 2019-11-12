@@ -1,3 +1,32 @@
+#### Import of the libraries ####
+
+import pandas as pd, numpy as np, matplotlib.pyplot as plt, seaborn as sns
+from sklearn.preprocessing import LabelEncoder
+import warnings, webbrowser, gc, os, datetime, time
+warnings.simplefilter("ignore")
+
+#### Models ####
+from sklearn.ensemble import RandomForestRegressor
+
+#### Change working directory
+
+os.chdir("C:\\Users\\Marek\\Desktop\\Python\\Kaggle\\Datasets\\ASHRAE")
+
+#### Fitting the data ####
+
+full_train_data = pd.read_csv("full_train_data.csv")
+
+train_y = full_train_data['meter_reading']
+del full_train_data['meter_reading']
+del full_train_data['timestamp']
+train_X = full_train_data
+
+for column in range(0,train_X.shape[1]):
+    print(train_X.iloc[10:30,column])
+
+np.unique(full_train_data['IsWeekend'].values)
+
+
 #### Preprocess the data
 
 ## Monday = 0 and Sunday = 6
@@ -17,31 +46,16 @@ np.unique(full_train_data['IsWeekend'].values)
 
 ### Code ###
 
-#### Import of the libraries ####
-
-import pandas as pd, numpy as np, matplotlib.pyplot as plt, seaborn as sns
-from sklearn.preprocessing import LabelEncoder
-import warnings, webbrowser, gc, os, datetime, time
-warnings.simplefilter("ignore")
-
-#### Change working directory
-
-os.chdir("C:\\Users\\Marek\\Desktop\\Python\\Kaggle\\Datasets\\ASHRAE")
-
-#### Fitting the data ####
-
-full_train_data = pd.read_csv("full_train_data.csv")
-
-train_y = full_train_data['meter_reading']
-del full_train_data['meter_reading']
-del full_train_data['timestamp']
-train_X = full_train_data
 
 
 
 
-#### Models ####
-from sklearn.ensemble import RandomForestRegressor
+
+
+
+
+
+
 
 
 ####
